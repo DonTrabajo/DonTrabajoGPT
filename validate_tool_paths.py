@@ -1,0 +1,1 @@
+<validate_tool_paths.py content from canvas>

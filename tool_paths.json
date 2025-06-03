@@ -1,0 +1,8 @@
+{
+  "curl": "/usr/bin/curl",
+  "smbclient": "/usr/bin/smbclient",
+  "evilwinrm": "/opt/evil-winrm/evil-winrm.rb",
+  "ftp": "/usr/bin/ftp",
+  "ssh": "/usr/bin/ssh",
+  "xfreerdp": "/usr/bin/xfreerdp"
+}

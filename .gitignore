@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.env
+HTB/
+discord_ops_log.md
+flag_log.md
