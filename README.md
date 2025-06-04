@@ -17,7 +17,7 @@ Don Trabajo GPT is a lightweight, terminal-native AI assistant built to augment 
 
 ## 📸 Screenshots & Terminal Preview
 
-> *(Paste your own screenshots or ASCII previews here. Below is a sample run of the CVE matcher.)*
+
 
 ```
 ╭────────────────────────────╮
