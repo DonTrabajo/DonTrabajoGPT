@@ -14,10 +14,12 @@ def show_main_menu():
     table.add_column("Feature")
     table.add_column("Status")
 
+
+
     menu_options = [
-        ("1", "Parse linPEAS Output", "Coming Soon"),
-        ("2", "Run CVE Matcher", "Coming Soon"),
-        ("3", "Tool Path Validation", "Coming Soon"),
+        ("1", "Parse linPEAS Output", "⏳ WIP"),
+        ("2", "Run CVE Matcher", "✅ Ready"),
+        ("3", "Tool Path Validation", "✅ Ready"),
         ("4", "HTB Log Tracker", "Coming Soon"),
         ("5", "Launch Discord Bot", "Coming Soon"),
         ("6", "Exit", "")
