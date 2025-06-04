@@ -25,8 +25,9 @@ def show_main_menu():
 \____/_/     /_/
 
 [/bold green]
-"""
 
+    """
+    console.print(ascii_logo, style="bold green")
     console.print(Panel.fit("[bold cyan]Don Trabajo GPT[/bold cyan]\n[i]CyberOps Console Interface[/i]", border_style="bright_magenta"))
 
     table = Table(show_header=True, header_style="bold green")
