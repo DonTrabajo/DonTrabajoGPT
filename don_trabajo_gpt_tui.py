@@ -7,6 +7,26 @@ console = Console()
 
 def show_main_menu():
     console.clear()
+
+
+    ascii_logo = """
+
+[bold green]
+    ____                 ______           __
+   / __ \____  ____     /_  __/________ _/ /_  ____ _  (_)___
+  / / / / __ \/ __ \     / / / ___/ __ `/ __ \/ __ `/ / / __ \
+ / /_/ / /_/ / / / /    / / / /  / /_/ / /_/ / /_/ / / / /_/ /
+/_____/\____/_/ /_/    /_/ /_/   \__,_/_.___/\__,_/_/ /\____/
+                                                 /___/
+   __________  ______
+  / ____/ __ \/_  __/
+ / / __/ /_/ / / /
+/ /_/ / ____/ / /
+\____/_/     /_/
+
+[/bold green]
+"""
+
     console.print(Panel.fit("[bold cyan]Don Trabajo GPT[/bold cyan]\n[i]CyberOps Console Interface[/i]", border_style="bright_magenta"))
 
     table = Table(show_header=True, header_style="bold green")
