@@ -7,6 +7,7 @@ from cve_matcher import run_cve_matcher
 from validate_tool_paths import validate_tool_paths
 from animated_transition import animated_transition
 from swoosh_transition import swoosh_transition
+from linpeas_parser import parse_linpeas_output
 
 console = Console()
 
@@ -15,21 +16,31 @@ def main():
         choice = show_main_menu()
 
         if choice == "1":
-            console.print("🔧 linPEAS Parser is under construction.", style="yellow")
-            input("\n[Press Enter to return to menu]")
-            console.print(Panel("[green]Returning to menu...[/green]", border_style="bright_blue"))
-            time.sleep(1)
-            console.clear()
-
-        elif choice == "2":
             file_path = input("📂 Enter path to linPEAS JSON output file: ").strip()
             if os.path.isfile(file_path):
                 console.print("\a", end="")         # terminal bell
                 animated_transition()               # spinner-based animation
-                run_cve_matcher(file_path)
+                parse_linpeas_output(file_path)
                 console.print("\a", style="green", end="")  # success beep
                 input("\n[Press Enter to return to menu]")
-                swoosh_transition()                 # swoosh up animation
+                swoosh_transition()
+            else:
+                console.print("\a", style="bold red", end="")  
+                console.print(f"❌ File not found: {file_path}", style="bold red")
+                input("\n[Press Enter to return to menu]")
+                console.print(Panel("[green]Returning to menu...[/green]", border_style="bright_blue"))
+                time.sleep(1)
+                console.clear()
+
+        elif choice == "2":
+            file_path = input("📂 Enter path to linPEAS JSON output file: ").strip()
+            if os.path.isfile(file_path):
+                console.print("\a", end="")         
+                animated_transition()               
+                run_cve_matcher(file_path)
+                console.print("\a", style="green", end="")  
+                input("\n[Press Enter to return to menu]")
+                swoosh_transition()                 
             else:
                 console.print("\a", style="bold red", end="")  
                 console.print(f"❌ File not found: {file_path}", style="bold red")
