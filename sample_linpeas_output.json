@@ -1,22 +1,15 @@
 {
-  "binaries": [
-    {
-      "name": "sudo",
-      "version": "1.8.27",
-      "cve": "CVE-2019-14287",
-      "description": "Sudo security bypass when runas ALL but not root."
-    },
-    {
-      "name": "openssl",
-      "version": "1.0.1",
-      "cve": "CVE-2014-0160",
-      "description": "OpenSSL Heartbleed vulnerability."
-    },
-    {
-      "name": "bash",
-      "version": "4.3",
-      "cve": "CVE-2014-6271",
-      "description": "Bash Shellshock remote code execution."
-    }
-  ]
+    "interesting_users": [
+        "root",
+        "felix"
+    ],
+    "suid_binaries": [],
+    "kernel_info": "Not found",
+    "ip_addresses": [
+        "0.0.0.0",
+        "10.10.14.23",
+        "127.0.0.1",
+        "10.0.2.3",
+        "10.0.2.2"
+    ]
 }

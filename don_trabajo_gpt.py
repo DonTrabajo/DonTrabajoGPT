@@ -1,5 +1,6 @@
 import os
 import time
+import json
 from rich.console import Console
 from rich.panel import Panel
 from don_trabajo_gpt_tui import show_main_menu
@@ -15,17 +16,25 @@ def main():
     while True:
         choice = show_main_menu()
 
-        if choice == "1":
+        if choice == "0":
+            file_path = input("🔧 Preprocess raw linPEAS .txt to JSON: ").strip()
+            output_path = "sample_linpeas_output.json"
+            from linpeas_preprocessor import preprocess_linpeas_output
+            preprocess_linpeas_output(file_path, output_path)
+            input("\n[Press Enter to return to menu]")
+            swoosh_transition()
+
+        elif choice == "1":
             file_path = input("📂 Enter path to linPEAS JSON output file: ").strip()
             if os.path.isfile(file_path):
-                console.print("\a", end="")         # terminal bell
-                animated_transition()               # spinner-based animation
+                console.print("\a", end="")
+                animated_transition()
                 parse_linpeas_output(file_path)
-                console.print("\a", style="green", end="")  # success beep
+                console.print("\a", style="green", end="")
                 input("\n[Press Enter to return to menu]")
                 swoosh_transition()
             else:
-                console.print("\a", style="bold red", end="")  
+                console.print("\a", style="bold red", end="")
                 console.print(f"❌ File not found: {file_path}", style="bold red")
                 input("\n[Press Enter to return to menu]")
                 console.print(Panel("[green]Returning to menu...[/green]", border_style="bright_blue"))
@@ -35,14 +44,14 @@ def main():
         elif choice == "2":
             file_path = input("📂 Enter path to linPEAS JSON output file: ").strip()
             if os.path.isfile(file_path):
-                console.print("\a", end="")         
-                animated_transition()               
+                console.print("\a", end="")
+                animated_transition()
                 run_cve_matcher(file_path)
-                console.print("\a", style="green", end="")  
+                console.print("\a", style="green", end="")
                 input("\n[Press Enter to return to menu]")
-                swoosh_transition()                 
+                swoosh_transition()
             else:
-                console.print("\a", style="bold red", end="")  
+                console.print("\a", style="bold red", end="")
                 console.print(f"❌ File not found: {file_path}", style="bold red")
                 input("\n[Press Enter to return to menu]")
                 console.print(Panel("[green]Returning to menu...[/green]", border_style="bright_blue"))

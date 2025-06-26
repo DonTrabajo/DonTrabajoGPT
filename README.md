@@ -17,41 +17,23 @@ Don Trabajo GPT is a lightweight, terminal-native AI assistant built to augment 
 
 ## 📸 Screenshots & Terminal Preview
 
-
-
 ```
 ╭────────────────────────────╮
 │ Don Trabajo GPT            │
 │ CyberOps Console Interface │
 ╰────────────────────────────╯
-┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
-┃ Option   ┃ Feature              ┃ Status      ┃
-┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
-│ 1        │ Parse linPEAS Output │ ⏳ WIP      │
-│ 2        │ Run CVE Matcher      │ ✅ Ready    │
-│ 3        │ Tool Path Validation │ ✅ Ready    │
-│ 4        │ HTB Log Tracker      │ Coming Soon │
-│ 5        │ Launch Discord Bot   │ Coming Soon │
-│ 6        │ Exit                 │             │
-└──────────┴──────────────────────┴─────────────┘
-Choose an option [1/2/3/4/5/6]: 2
-📂 Enter path to linPEAS JSON output file: sample_linpeas_output.json
-
-🛡  **CVE Findings:**
-----------------------------------------
-🔹 **Binary:** sudo 1.8.27  
-   **CVE:** CVE-2019-14287  
-   **Description:** Sudo security bypass when runas ALL but not root.
-
-🔹 **Binary:** openssl 1.0.1  
-   **CVE:** CVE-2014-0160  
-   **Description:** OpenSSL Heartbleed vulnerability.
-
-🔹 **Binary:** bash 4.3  
-   **CVE:** CVE-2014-6271  
-   **Description:** Bash Shellshock remote code execution.
-
-Press [Enter] to return to menu.
+┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Option   ┃ Feature                       ┃ Status      ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ 0        │ Preprocess linPEAS Raw Output │ 🔥 New      │
+│ 1        │ Parse linPEAS Output          │ ✅ Ready    │
+│ 2        │ Run CVE Matcher               │ ✅ Ready    │
+│ 3        │ Tool Path Validation          │ ✅ Ready    │
+│ 4        │ HTB Log Tracker               │ Coming Soon │
+│ 5        │ Launch Discord Bot            │ Coming Soon │
+│ 6        │ Exit                          │             │
+└──────────┴───────────────────────────────┴─────────────┘
+Choose an option [0/1/2/3/4/5/6]:
 ```
 
 ---
@@ -68,7 +50,7 @@ python3 -m venv venv
 source venv/bin/activate
 
 # Install dependencies
-pip install -r requirements.txt  
+pip install -r requirements.txt
 
 # Validate your tool paths
 python validate_tool_paths.py
@@ -86,8 +68,9 @@ python don_trabajo_gpt.py
 $ python don_trabajo_gpt.py
 ```
 Choose options by number, e.g.:
-- **1** – linPEAS parsing (coming soon)
-- **2** – Run CVE Matcher on a JSON file
+- **0** – Preprocess linPEAS raw output
+- **1** – Parse linPEAS JSON output
+- **2** – Match CVEs from linPEAS results
 - **3** – Validate `tool_paths.json`
 - **4** – HTB Log Tracker (coming soon)
 - **5** – Launch Discord bot (coming soon)
@@ -104,7 +87,7 @@ $ python validate_tool_paths.py
 ### 3. Run CVE Matcher
 ```bash
 $ python don_trabajo_gpt.py
-Choose an option [1/2/3/4/5/6]: 2
+Choose an option [0/1/2/3/4/5/6]: 2
 📂 Enter path to linPEAS JSON output file: path/to/linpeas.json
 🛡  CVE Findings:
 ...  # paged output
@@ -150,7 +133,7 @@ DonTrabajoGPT/
 |------------|------------------------------------------------------|
 | ✅ Ready   | Run CVE Matcher on any linPEAS JSON                  |
 | ✅ Ready   | Tool Path Validation via `tool_paths.json`           |
-| 🔄 WIP     | linPEAS Output Parser                                |
+| ✅ Ready   | Parse linPEAS Output                                 |
 | 🔄 WIP     | Discord Bot (logging & notifications)                |
 | 🔄 WIP     | HTB Log Tracker (record per-machine progress)        |
 | ⏳ Planned | Enum4linux Parser                                    |
