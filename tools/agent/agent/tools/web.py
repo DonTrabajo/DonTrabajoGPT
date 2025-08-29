@@ -1,4 +1,8 @@
-from duckduckgo_search import DDGS
+try:
+    from ddgs import DDGS
+except ImportError:  # fallback for old package name
+    from duckduckgo_search import DDGS
+
 import requests, trafilatura
 import warnings
 from bs4 import BeautifulSoup
