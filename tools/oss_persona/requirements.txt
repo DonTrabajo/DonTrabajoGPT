@@ -1,8 +1,6 @@
-# Pinned to avoid drift with ddgs web-search stack
 ddgs==9.5.4
 requests==2.32.3
-
-# If you rely on these indirectly, consider pinning too:
-# lxml==6.0.1
-# click==8.2.1
-# primp==0.15.0
+rich==13.7.1
+colorama==0.4.6
+click==8.2.1
+# add any other libs you import explicitly
