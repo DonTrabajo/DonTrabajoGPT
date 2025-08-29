@@ -196,10 +196,21 @@ class Agent:
                     if (not out or len(out) == 0) and include_sites:
                         out = self.tools["web.search"](query=f"{q} site:{include_sites[0]}", max_results=8)
                     picks = self._filter_and_rerank(out, need=2, user_prompt=user_prompt)
+                    # FALLBACK_INSERTED: if reranker returns none but results exist, take the first
+                    if (not picks) and out:
+                        first = out[0]
+                        url = first.get('href') or first.get('url') or ''
+                        title = (first.get('title') or url) or 'Result'
+                        if url:
+                            picks = [(title, url)]
                     if picks:
                         bullets = "\\n".join([f"- {t} — {u}" for (t,u) in picks])
                         if re.search(r"final_answer", user_prompt, re.I):
-                            return "FINAL_ANSWER: " + ("\\n" + bullets if "\\n" in bullets else bullets)
+                            if re.search(r"include the url only", user_prompt, re.I):
+                                return "FINAL_ANSWER: " + (picks[0][1] if picks else "")
+                            return "FINAL_ANSWER: " + ("
+" + bullets if "
+" in bullets else bullets)
                         messages.append({"role": "assistant", "content": bullets})
                     else:
                         messages.append({"role": "assistant", "content": "No suitable results after filtering."})
