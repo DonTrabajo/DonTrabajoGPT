@@ -91,3 +91,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+        elif choice == "7":
+            from tools.oss_persona.tui_offline_llm import run as run_offline
+            run_offline()
