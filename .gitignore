@@ -26,3 +26,9 @@ tools/agent/.env
 # Build/outputs
 dist/
 build/
+
+# Local backups
+*.bak
+*.bak.*
+tools/agent/agent/*.bak.*
+tools/oss_persona/*.bak.*
