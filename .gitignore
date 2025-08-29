@@ -1,6 +1,34 @@
-venv/
+# macOS cruft
+.DS_Store
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
-*.zip
-.DS_Store
+*.pyd
+*.egg-info/
+
+# Virtual envs & local configs
+.venv/
+.env
+.env.local
+tools/agent/.env
+
+# Editor junk
+.vscode/
+.idea/
+
+# Local caches/state
+.don_trabajo_oss/
+.ollama/
+.rgignore
+
+# Build/outputs
+dist/
+build/
+
+# Local backups
+*.bak
+*.bak.*
+tools/agent/agent/*.bak.*
+tools/oss_persona/*.bak.*
