@@ -1,2 +1,8 @@
-requests>=2.31
-# urllib3<2 if you want to silence LibreSSL warnings
+# Pinned to avoid drift with ddgs web-search stack
+ddgs==9.5.4
+requests==2.32.3
+
+# If you rely on these indirectly, consider pinning too:
+# lxml==6.0.1
+# click==8.2.1
+# primp==0.15.0
