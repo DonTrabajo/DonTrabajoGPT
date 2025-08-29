@@ -1,6 +1,5 @@
-ddgs==1.7.6
 requests==2.32.3
 rich==13.7.1
 colorama==0.4.6
 click==8.2.1
-# add any other libs you import explicitly
+ddgs==9.5.4
