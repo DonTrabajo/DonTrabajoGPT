@@ -1,7 +1,4 @@
-try:
-    from ddgs import DDGS
-except ImportError:  # fallback for old package name
-    from duckduckgo_search import DDGS
+from ddgs import DDGS  # enforced
 
 import requests, trafilatura
 import warnings
