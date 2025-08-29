@@ -160,3 +160,12 @@ This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for
 ---
 
 **¡Adelante siempre!**
+---
+
+## DonTrabajo OSS Persona & Local Agent
+
+- **Persona wrapper & CLI:** see [`tools/oss_persona/README.md`](tools/oss_persona/README.md)  
+- **Local agent quickstart:** see [`README_AGENT.md`](README_AGENT.md)  
+- **Integration notes / PR draft:** see [`docs/PR_DRAFT_agent_integration.md`](docs/PR_DRAFT_agent_integration.md)
+
+> Heads-up: the agent’s web search is still evolving (soft-404 filtering, reranker heuristics). Expect rough edges in `tools/agent/` while it’s marked WIP.
