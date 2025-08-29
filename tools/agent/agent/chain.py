@@ -194,6 +194,14 @@ class Agent:
                     q, _, _ = self._extract_query_and_sites(user_prompt)
                     out = self.tools["web.search"](query=q, max_results=8)
                     picks = self._filter_and_rerank(out, need=2, user_prompt=user_prompt)
+                    # FALLBACK_TO_FIRST_RESULT: if reranker yields none but we have raw results
+                    if (not picks) and out:
+                        first = out[0]
+                        url = (first.get('url') or first.get('href') or '')
+                        title = (first.get('title') or url or 'Result')
+                        if url:
+                            picks = [(title, url)]
+
                     if picks:
                         bullets = "\\n".join([f"- {t} — {u}" for (t,u) in picks])
                         if re.search(r"final_answer", user_prompt, re.I):
