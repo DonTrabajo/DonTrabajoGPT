@@ -58,24 +58,7 @@ python validate_tool_paths.py
 # Launch the assistant
 python don_trabajo_gpt.py
 ```
-## 🔒 Offline-First Mode (Local LLM)
 
-Run DonTrabajoGPT with a fully local brain via [Ollama](https://ollama.ai).
-
-```bash
-# 1) Install & start Ollama (macOS)
-brew install --cask ollama
-ollama serve
-
-# 2) Pick a local model you already have (examples):
-#   deepseek-r1:8b   or   gpt-oss:20b
-ollama list  # verify
-
-# 3) Configure DonTrabajoGPT
-cp .env.example .env
-# In .env, set:
-#   OPENAI_BASE_URL=http://127.0.0.1:11434/v1
-#   LLM_MODEL=deepseek-r1:8b   # or gpt-oss:20b
 ---
 
 ## 📋 Usage Examples
