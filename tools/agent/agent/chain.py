@@ -191,8 +191,10 @@ class Agent:
             if not did_any_tool and re.search(r'\bweb\.search\b', (user_prompt + reply).lower()):
                 # BOOTSTRAP: web.search (deterministic filter + rerank)
                 try:
-                    q, _, _ = self._extract_query_and_sites(user_prompt)
+                    q, include_sites, _ = self._extract_query_and_sites(user_prompt)
                     out = self.tools["web.search"](query=q, max_results=8)
+                    if (not out or len(out) == 0) and include_sites:
+                        out = self.tools["web.search"](query=f"{q} site:{include_sites[0]}", max_results=8)
                     picks = self._filter_and_rerank(out, need=2, user_prompt=user_prompt)
                     if picks:
                         bullets = "\\n".join([f"- {t} — {u}" for (t,u) in picks])
