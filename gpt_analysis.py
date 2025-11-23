@@ -6,9 +6,21 @@ from openai import OpenAI
 
 # Load .env BEFORE using the key
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL"))
-
 console = Console()
+
+
+def _get_client():
+    """Lazily create an OpenAI-compatible client; return None if missing config."""
+    api_key = os.getenv("OPENAI_API_KEY")
+    base_url = os.getenv("OPENAI_BASE_URL")
+    if not api_key:
+        console.print("[red]✗ OPENAI_API_KEY not set; skipping GPT analysis.[/red]")
+        return None
+    try:
+        return OpenAI(api_key=api_key, base_url=base_url)
+    except Exception as exc:
+        console.print(f"[red]✗ Failed to initialize OpenAI client: {exc}[/red]")
+        return None
 
 
 def format_prompt(parsed_data):
@@ -36,6 +48,9 @@ def format_prompt(parsed_data):
 
 def run_gpt_analysis(parsed_data):
     prompt = format_prompt(parsed_data)
+    client = _get_client()
+    if not client:
+        return
 
     try:
         response = client.chat.completions.create(

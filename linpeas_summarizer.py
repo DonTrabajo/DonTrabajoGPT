@@ -48,6 +48,6 @@ def summarize_linpeas_findings(parsed_data):
 
 if __name__ == "__main__":
     path = input("Enter path to parsed linPEAS JSON: ").strip()
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
     summarize_linpeas_findings(data)

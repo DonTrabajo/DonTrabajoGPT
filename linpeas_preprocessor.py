@@ -39,6 +39,8 @@ def _extract_binaries(raw: str, suids):
     Light-weight binary discovery:
     - pull binary names from SUID entries
     - scan for '<name> version X.Y' patterns
+    - scan for '<name> X.Y.Z' patterns
+    - scan for '<name>/<X.Y.Z>' patterns
     - capture daemons from 'pid/name' tokens
     """
     binaries = []
@@ -58,6 +60,14 @@ def _extract_binaries(raw: str, suids):
 
     # "name version 1.2.3"
     for m in re.finditer(r"([A-Za-z0-9._+-]+)\s+version\s+([0-9][\w.\-]*)", raw, re.IGNORECASE):
+        add_binary(m.group(1), m.group(2))
+
+    # "name 1.2.3"
+    for m in re.finditer(r"([A-Za-z0-9._+-]+)\s+([0-9][\w.\-]+)", raw):
+        add_binary(m.group(1), m.group(2))
+
+    # "name/1.2.3"
+    for m in re.finditer(r"([A-Za-z0-9._+-]+)/([0-9][\w.\-]+)", raw):
         add_binary(m.group(1), m.group(2))
 
     # processes like "1234/sshd"
@@ -82,6 +92,7 @@ def preprocess_linpeas_output(input_path, output_path):
             "metadata": {
                 "source": str(input_path),
                 "schema": "don-trabajo-linpeas-v1",
+                "version": "1.0.0",
             },
             "users": users,
             "suid_binaries": suids,

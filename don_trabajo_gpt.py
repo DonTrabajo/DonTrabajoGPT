@@ -35,7 +35,8 @@ def main():
             file_path = _prompt_for_file("📄 Preprocess raw linPEAS .txt to JSON: ")
             if not file_path:
                 continue
-            output_path = "sample_linpeas_output.json"
+            from datetime import datetime
+            output_path = f"linpeas_parsed_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
             from linpeas_preprocessor import preprocess_linpeas_output
 
             preprocess_linpeas_output(file_path, output_path)

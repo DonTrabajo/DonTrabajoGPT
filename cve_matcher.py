@@ -4,17 +4,33 @@ from rich.console import Console
 console = Console()
 
 # Minimal static CVE hints for demo purposes.
+# Structure: name -> list of {min_version, max_version, cve, description}
 CVE_DB = {
     "sudo": [
-        {"version_substr": "1.8", "cve": "CVE-2021-3156", "description": "Sudo Baron Samedit heap overflow"},
-    ],
-    "passwd": [
-        {"version_substr": "", "cve": "CVE-2019-6109", "description": "Potential OpenSSH scp path injection (check version)"},
+        {"min_version": "1.8.0", "max_version": "1.9.5p2", "cve": "CVE-2021-3156", "description": "Sudo Baron Samedit heap overflow"},
     ],
     "sshd": [
-        {"version_substr": "8.2", "cve": "CVE-2020-14145", "description": "Potential timing issue in OpenSSH 8.2"},
+        {"min_version": "8.2", "max_version": "8.2", "cve": "CVE-2020-14145", "description": "OpenSSH timing issue in 8.2"},
     ],
 }
+
+
+def _ver_tuple(ver: str):
+    try:
+        return tuple(int(x) for x in ver.split(".") if x.isdigit())
+    except Exception:
+        return ()
+
+
+def _version_in_range(version: str, min_v: str, max_v: str):
+    vt = _ver_tuple(version)
+    min_t = _ver_tuple(min_v) if min_v else ()
+    max_t = _ver_tuple(max_v) if max_v else ()
+    if min_t and vt and vt < min_t:
+        return False
+    if max_t and vt and vt > max_t:
+        return False
+    return True
 
 
 def _match_cves(binaries):
@@ -25,8 +41,7 @@ def _match_cves(binaries):
         if not name:
             continue
         for cand in CVE_DB.get(name, []):
-            ver_sub = cand["version_substr"]
-            if not ver_sub or ver_sub in version:
+            if _version_in_range(version, cand.get("min_version",""), cand.get("max_version","")):
                 findings.append(
                     {
                         "name": binary.get("name", ""),

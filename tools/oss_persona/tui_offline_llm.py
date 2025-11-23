@@ -19,6 +19,7 @@ def _env(k, d=None):
 
 def _load_latest_artifact():
     artifacts_dir = Path(_env("ARTIFACTS_DIR","artifacts"))
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
     patterns = [p.strip() for p in _env("ARTIFACT_PATTERNS","linpeas*.json,findings*.json,*.txt").split(",")]
     candidates = []
     for pat in patterns:

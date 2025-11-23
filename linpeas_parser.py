@@ -6,10 +6,23 @@ from rich.panel import Panel
 console = Console()
 
 
+def _validate_schema(data):
+    meta = data.get("metadata", {})
+    schema = meta.get("schema")
+    if schema != "don-trabajo-linpeas-v1":
+        console.print("[yellow]⚠ Unexpected schema version; results may be incomplete.[/yellow]")
+    required = ["users", "suid_binaries", "kernel", "binaries"]
+    missing = [k for k in required if k not in data]
+    if missing:
+        console.print(f"[yellow]⚠ Missing fields in JSON: {', '.join(missing)}[/yellow]")
+
+
 def parse_linpeas_output(file_path):
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
+
+        _validate_schema(data)
 
         console.print(Panel("[bold cyan]linPEAS Output Summary[/bold cyan]", border_style="bright_green"))
 
