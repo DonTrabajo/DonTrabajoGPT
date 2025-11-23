@@ -40,6 +40,7 @@ def _check_ollama_available() -> bool:
 
 
 def _check_openai_available() -> bool:
+    load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
     return bool(api_key and api_key.strip())
 
@@ -187,8 +188,11 @@ def summarize_findings(
     Returns:
         Dict with status, summary text, backend_used, and error.
     """
+    provided = sum(1 for v in [json_path, parsed_data] if v)
+    if provided != 1:
+        return {"status": "error", "summary": None, "backend_used": None, "error": "Provide exactly one of json_path or parsed_data"}
     if mode == "none":
-        return {"status": "success", "summary": None, "backend_used": None, "error": None}
+        return {"status": "error", "summary": None, "backend_used": None, "error": "LLM summarization disabled (mode=none)"}
     if json_path and not parsed_data:
         try:
             with open(json_path, "r", encoding="utf-8") as f:
@@ -319,6 +323,7 @@ def launch_agent_session(persona: str = "don_trabajo", mode: str = "local") -> N
     if mode != "local":
         return
     try:
+        load_dotenv(dotenv_path="tools/agent/.env", override=False)
         from tools.agent import runner
 
         runner.repl()
@@ -341,6 +346,7 @@ def agent_one_shot(query: str, persona: str = "don_trabajo", mode: str = "local"
     if mode != "local":
         return {"status": "error", "response": None, "error": "Unsupported mode"}
     try:
+        load_dotenv(dotenv_path="tools/agent/.env", override=False)
         from tools.agent.agent.chain import Agent
 
         agent = Agent.from_env()
