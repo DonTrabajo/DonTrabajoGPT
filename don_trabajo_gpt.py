@@ -3,12 +3,11 @@ import time
 from rich.console import Console
 from rich.panel import Panel
 from don_trabajo_gpt_tui import show_main_menu
-from cve_matcher import run_cve_matcher
 from validate_tool_paths import validate_tool_paths
 from animated_transition import animated_transition
 from swoosh_transition import swoosh_transition
 from linpeas_parser import parse_linpeas_output
-from combo_linpeas_analyzer import analyze_linpeas_full_stack
+import orchestrator
 
 console = Console()
 
@@ -35,11 +34,11 @@ def main():
             file_path = _prompt_for_file("📄 Preprocess raw linPEAS .txt to JSON: ")
             if not file_path:
                 continue
-            from datetime import datetime
-            output_path = f"linpeas_parsed_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
-            from linpeas_preprocessor import preprocess_linpeas_output
-
-            preprocess_linpeas_output(file_path, output_path)
+            result = orchestrator.preprocess_only(file_path)
+            if result["status"] == "success":
+                console.print(Panel(f"[green]✓ JSON saved to:[/green] {result['json_path']}", border_style="green"))
+            else:
+                console.print(Panel(f"[red]✗ Preprocess failed:[/red] {result.get('error')}", border_style="red"))
             input("\n[Press Enter to return to menu]")
             swoosh_transition()
 
@@ -60,7 +59,14 @@ def main():
                 continue
             console.print("\a", end="")
             animated_transition()
-            run_cve_matcher(file_path)
+            cve_result = orchestrator.run_cve_pipeline(file_path)
+            if cve_result["status"] == "success" and cve_result.get("cve_findings"):
+                for hit in cve_result["cve_findings"]:
+                    console.print(f"• {hit['name']} {hit['version']} -> {hit['cve']}: {hit['description']}")
+            elif cve_result["status"] == "success":
+                console.print("[yellow]No CVE findings.[/yellow]")
+            else:
+                console.print(f"[red]✗ CVE matcher failed: {cve_result.get('error')}[/red]")
             console.print("\a", style="green", end="")
             input("\n[Press Enter to return to menu]")
             swoosh_transition()
@@ -86,12 +92,7 @@ def main():
             console.clear()
 
         elif choice == "6":
-            try:
-                from tools.oss_persona.tui_offline_llm import run as run_offline
-
-                run_offline()
-            except Exception as exc:
-                console.print(f"[red]Offline LLM failed: {exc}[/red]")
+            orchestrator.launch_agent_session(persona="don_trabajo", mode="local")
             input("\n[Press Enter to return to menu]")
             swoosh_transition()
 
@@ -100,7 +101,26 @@ def main():
             if not file_path:
                 continue
             animated_transition()
-            analyze_linpeas_full_stack(file_path)
+            result = orchestrator.analyze_linpeas(file_path, mode="auto", save_json=False)
+            if result["status"] in {"success", "partial"}:
+                console.print(Panel("[green]✓ Analysis complete[/green]", border_style="green"))
+                parsed = result.get("parsed_data") or {}
+                if parsed:
+                    console.print("[bold yellow]Parsed Summary:[/bold yellow]")
+                    for user in parsed.get("users", []):
+                        console.print(f"• user: {user}")
+                    for suid in parsed.get("suid_binaries", []):
+                        console.print(f"• suid: {suid}")
+                if result.get("cve_findings"):
+                    console.print("[bold yellow]CVE Findings:[/bold yellow]")
+                    for hit in result["cve_findings"]:
+                        console.print(f"- {hit['name']} {hit['version']} -> {hit['cve']}: {hit['description']}")
+                if result.get("llm_summary"):
+                    console.print(Panel(result["llm_summary"], title="🧠 LLM Summary", border_style="blue"))
+                if result.get("errors"):
+                    console.print(Panel(f"[yellow]Warnings: {result['errors']}[/yellow]", border_style="yellow"))
+            else:
+                console.print(Panel(f"[red]✗ Analysis failed: {result.get('errors')}[/red]", border_style="red"))
             input("\n[Press Enter to return to menu]")
             swoosh_transition()
 

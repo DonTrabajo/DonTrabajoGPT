@@ -1,39 +1,36 @@
 import os
-import json
-from datetime import datetime
 from rich.console import Console
 from rich.panel import Panel
-from linpeas_preprocessor import preprocess_linpeas_output
-from linpeas_parser import parse_linpeas_output
-from linpeas_summarizer import summarize_linpeas_findings
-from cve_matcher import run_cve_matcher
-from gpt_analysis import run_gpt_analysis
+import orchestrator
 
 console = Console()
 
 
 def analyze_linpeas_full_stack(raw_txt_path):
-    json_path = f"linpeas_parsed_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
-    console.print(Panel("[bold magenta]💻 Starting Full Stack linPEAS Analysis[/bold magenta]", border_style="bright_magenta"))
-    try:
-        preprocess_linpeas_output(raw_txt_path, json_path)
+    """
+    Deprecated legacy entrypoint.
 
+    Use orchestrator.analyze_linpeas() instead; this wrapper keeps legacy CLI flows working.
+    """
+    console.print(Panel("[bold magenta]💻 Starting Full Stack linPEAS Analysis[/bold magenta]", border_style="bright_magenta"))
+    result = orchestrator.analyze_linpeas(raw_txt_path, mode="auto", save_json=False)
+
+    if result["status"] in {"success", "partial"}:
         console.print(Panel("[bold cyan]📜 Parsed Summary[/bold cyan]", border_style="bright_cyan"))
-        parse_linpeas_output(json_path)
+        parsed = result.get("parsed_data") or {}
+        for user in parsed.get("users", []):
+            console.print(f"• user: {user}")
+        for suid in parsed.get("suid_binaries", []):
+            console.print(f"• suid: {suid}")
 
         console.print(Panel("[bold yellow]🛡 CVE Matcher Results[/bold yellow]", border_style="yellow"))
-        run_cve_matcher(json_path)
+        for finding in result.get("cve_findings", []):
+            console.print(f"- {finding['name']} {finding['version']}: {finding['cve']} {finding['description']}")
 
-        console.print(Panel("[bold blue]🧠 Expert Recommendations[/bold blue]", border_style="blue"))
-        with open(json_path, "r", encoding="utf-8") as f:
-            parsed = json.load(f)
-        run_gpt_analysis(parsed)
-    finally:
-        try:
-            if os.path.exists(json_path):
-                os.remove(json_path)
-        except Exception:
-            pass
+        if result.get("llm_summary"):
+            console.print(Panel(result["llm_summary"], title="🧠 LLM Summary", border_style="blue"))
+    else:
+        console.print(Panel(f"[red]Analysis failed: {result.get('errors')}[/red]", border_style="red"))
 
 
 if __name__ == "__main__":
