@@ -87,7 +87,7 @@ def get_llm_status() -> dict:
         "local": {
             "available": local_available,
             "endpoint": host,
-            "model": os.getenv("LLM_MODEL", ""),
+            "model": os.getenv("OSS_MODEL", "gpt-oss:20b"),
         },
         "cloud": {
             "available": cloud_available,
@@ -272,7 +272,7 @@ def analyze_linpeas(raw_file_path: str, mode: str = "auto", save_json: bool = Fa
             errors.append(cve_result.get("error"))
 
         if mode != "none":
-            sum_result = summarize_findings(json_path=json_path, parsed_data=parsed_data, mode=mode)
+            sum_result = summarize_findings(parsed_data=parsed_data, mode=mode)
             if sum_result["status"] == "success":
                 llm_summary = sum_result.get("summary")
             else:
