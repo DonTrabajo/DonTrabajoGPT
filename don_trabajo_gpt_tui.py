@@ -5,13 +5,16 @@ from rich.prompt import Prompt
 
 console = Console()
 
+
 def show_main_menu():
     console.clear()
 
-    console.print(Panel.fit(
-        "[bold cyan]Don Trabajo GPT[/bold cyan]\n[i]CyberOps Console Interface[/i]",
-        border_style="bright_magenta"
-    ))
+    console.print(
+        Panel.fit(
+            "[bold cyan]Don Trabajo GPT[/bold cyan]\n[i]CyberOps Console Interface[/i]",
+            border_style="bright_magenta",
+        )
+    )
 
     table = Table(show_header=True, header_style="bold green")
     table.add_column("Option", style="dim", width=8)
@@ -19,13 +22,15 @@ def show_main_menu():
     table.add_column("Status")
 
     menu_options = [
-        ["0", "Preprocess linPEAS Raw Output", "🔥 New"],
+        ["0", "Preprocess linPEAS Raw Output", "🆕"],
         ["1", "Parse linPEAS Output", "✅ Ready"],
         ["2", "Run CVE Matcher", "✅ Ready"],
         ["3", "Tool Path Validation", "✅ Ready"],
         ["4", "HTB Log Tracker", "Coming Soon"],
         ["5", "Launch Discord Bot", "Coming Soon"],
-        ["6", "Exit", ""]
+        ["6", "Offline LLM (Local Persona)", "Beta"],
+        ["7", "Full linPEAS Analyzer (combo)", "Beta"],
+        ["8", "Exit", ""],
     ]
 
     for opt in menu_options:
@@ -33,5 +38,8 @@ def show_main_menu():
 
     console.print(table)
 
-    choice = Prompt.ask("[bold yellow]Choose an option[/bold yellow]", choices=[opt[0] for opt in menu_options])
+    choice = Prompt.ask(
+        "[bold yellow]Choose an option[/bold yellow]",
+        choices=[opt[0] for opt in menu_options],
+    )
     return choice

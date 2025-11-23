@@ -33,19 +33,20 @@
 │ Don Trabajo GPT            │
 │ CyberOps Console Interface │
 ╰────────────────────────────╯
-┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
-┃ Option   ┃ Feature                       ┃ Status      ┃
-┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
-│ 0        │ Preprocess linPEAS Raw Output │ 🔥 New      │
-│ 1        │ Parse linPEAS Output          │ ✅ Ready    │
-│ 2        │ Run CVE Matcher               │ ✅ Ready    │
-│ 3        │ Tool Path Validation          │ ✅ Ready    │
-│ 4        │ HTB Log Tracker               │ Coming Soon │
-│ 5        │ Launch Discord Bot            │ Coming Soon │
-│ 6        │ Exit                          │             │
-│ 7        │ Local LLM (Offline) Summary   │ ✅ Ready    │
-└──────────┴───────────────────────────────┴─────────────┘
-Choose an option [0/1/2/3/4/5/6/7]:
+???????????????????????????????????????????????????????????
+? Option   ? Feature                        ? Status       ?
+???????????????????????????????????????????????????????????
+і 0        і Preprocess linPEAS Raw Output  і 🆕            і
+і 1        і Parse linPEAS Output           і ✅ Ready      і
+і 2        і Run CVE Matcher                і ✅ Ready      і
+і 3        і Tool Path Validation           і ✅ Ready      і
+і 4        і HTB Log Tracker                і Coming Soon  і
+і 5        і Launch Discord Bot             і Coming Soon  і
+і 6        і Offline LLM (Local Persona)    і Beta         і
+і 7        і Full linPEAS Analyzer (combo)  і Beta         і
+і 8        і Exit                           і              і
+АДДДДДДДДДДБДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДБДДДДДДДДДДДДДДЩ
+Choose an option [0/1/2/3/4/5/6/7/8]:
 ```
 
 ---
@@ -121,7 +122,7 @@ PY
 1. Prove no cloud calls:  
    `curl -s http://127.0.0.1:11434/v1/models` ✅  
 2. Put a sample artifact in `artifacts/` (or paste on prompt).  
-3. **TUI → Option 7**: Local LLM (offline) summary → generate checklist & next steps.  
+3. **TUI → Option 6**: Local LLM (offline) summary → generate checklist & next steps.  
 4. Show the saved Markdown in `notes/`.  
 5. (Optional) Toggle Wi-Fi off and repeat. Still works.
 
@@ -134,14 +135,15 @@ PY
 python don_trabajo_gpt.py
 ```
 Choose options by number:  
-- **0** – Preprocess linPEAS raw output  
-- **1** – Parse linPEAS JSON output  
-- **2** – Match CVEs from linPEAS results  
-- **3** – Validate `tool_paths.json`  
-- **4** – HTB Log Tracker *(coming soon)*  
-- **5** – Discord bot *(coming soon)*  
-- **6** – Exit  
-- **7** – **Local LLM (Offline)**: summarize findings & draft next steps
+- **0** - Preprocess linPEAS raw output  
+- **1** - Parse linPEAS JSON output  
+- **2** - Match CVEs from linPEAS results  
+- **3** - Validate `tool_paths.json`  
+- **4** - HTB Log Tracker *(coming soon)*  
+- **5** - Discord bot *(coming soon)*  
+- **6** - **Local LLM (Offline)**: summarize findings & draft next steps  
+- **7** - Full linPEAS analyzer (preprocess → parse → CVE → GPT)  
+- **8** - Exit  
 
 ### Validate Tool Paths
 ```bash
@@ -168,29 +170,27 @@ python -m tools.oss_persona.tui_offline_llm
 
 ```
 DonTrabajoGPT/
-├── animated_transition.py
-├── cve_matcher.py
-├── docs/
-│   ├── CNAME
-│   └── index.html
-├── don_trabajo_gpt.py              # Main TUI launcher
-├── don_trabajo_gpt_tui.py          # Rich-powered menu UI
-├── don_trabajo_discord_bot.py      # (WIP) Discord logging
-├── ping.wav
-├── requirements.txt
-├── sample_linpeas_output.json
-├── swoosh_transition.py
-├── tools/
-│   └── oss_persona/
-│       ├── persona_prompt.txt      # system prompt for local persona
-│       ├── offline_llm_client.py   # OpenAI-compatible (Ollama) client
-│       └── tui_offline_llm.py      # Option 7 runner (offline summary)
-├── validate_tool_paths.py
-├── .env.example                    # Offline-first config template
-├── artifacts/                      # (gitignored) analysis inputs
-├── notes/                          # (gitignored) generated summaries
-├── LICENSE
-└── README.md
+|- animated_transition.py
+|- cve_matcher.py
+|- docs/
+|  |- CNAME
+|  |- index.html
+|- don_trabajo_gpt.py              # Main TUI launcher
+|- don_trabajo_gpt_tui.py          # Rich-powered menu UI
+|- requirements.txt
+|- sample_linpeas_output.json
+|- swoosh_transition.py
+|- tools/
+|  |- oss_persona/
+|     |- persona_prompt.txt        # system prompt for local persona
+|     |- oss_client.py             # OpenAI-compatible (Ollama) client
+|     |- tui_offline_llm.py        # Offline summary runner
+|- validate_tool_paths.py
+|- .env.example                    # Offline-first config template
+|- artifacts/                      # (gitignored) analysis inputs
+|- notes/                          # (gitignored) generated summaries
+|- LICENSE
+|- README.md
 ```
 
 ---
@@ -244,7 +244,7 @@ NOTES_DIR=notes
 - Use a Python venv (`.venv`) and keep `artifacts/` & `notes/` out of git (already ignored).  
 - For talks, prep a `notes/` wipe and an `artifacts/` seed file to reset in seconds.  
 - Want a `Makefile`?  
-  - `make offline-demo` → env + sample artifact + run Option 7  
+  - `make offline-demo` → env + sample artifact + run Option 6  
   - `make clean-notes` → empty `notes/`
 
 ---
@@ -267,4 +267,11 @@ This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for
 
 **¡Adelante siempre!**  
 *Less heroics. More reliability. Keep the receipts.*
+
+
+
+
+
+
+
 

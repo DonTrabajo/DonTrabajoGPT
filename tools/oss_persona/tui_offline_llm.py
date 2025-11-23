@@ -9,7 +9,7 @@ try:
 except Exception:
     pass
 
-from .offline_llm_client import chat
+from .oss_client import chat
 
 console = Console()
 
@@ -46,7 +46,7 @@ def run():
     {findings[:35000]}
     """).strip()
 
-    out = chat([{"role":"system","content":system},{"role":"user","content":prompt}], temperature=0.2)
+    out = chat([{"role": "system", "content": system}, {"role": "user", "content": prompt}], stream=False)
     console.print(Panel(out, title="Local LLM (offline) output"))
     notes = Path(_env("NOTES_DIR","notes")); notes.mkdir(parents=True, exist_ok=True)
     out_path = notes / f"ai_summary_{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.md"

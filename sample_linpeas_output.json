@@ -1,15 +1,36 @@
 {
-    "interesting_users": [
+    "metadata": {
+        "source": "<HOST_PATH>/sample_linpeas.txt",
+        "schema": "don-trabajo-linpeas-v1"
+    },
+    "users": [
         "root",
-        "felix"
+        "<USER>"
     ],
-    "suid_binaries": [],
-    "kernel_info": "Not found",
+    "suid_binaries": [
+        "/usr/bin/passwd",
+        "/usr/bin/sudo"
+    ],
+    "kernel": {
+        "raw": "Linux version 5.4.0-81-generic",
+        "version": "5.4.0-81"
+    },
     "ip_addresses": [
-        "0.0.0.0",
-        "10.10.14.23",
         "127.0.0.1",
-        "10.0.2.3",
-        "10.0.2.2"
+        "<LAB_IP>"
+    ],
+    "binaries": [
+        {
+            "name": "passwd",
+            "version": "1.0"
+        },
+        {
+            "name": "sudo",
+            "version": "1.8.31"
+        },
+        {
+            "name": "sshd",
+            "version": "8.2"
+        }
     ]
 }
