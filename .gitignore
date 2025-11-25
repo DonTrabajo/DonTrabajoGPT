@@ -25,6 +25,7 @@ tools/agent/.env
 # Local caches/state
 .don_trabajo_oss/
 .ollama/
+.claude/
 .rgignore
 
 # Build/outputs

@@ -6,15 +6,19 @@ and LLM summarization), handles backend routing, and exposes agent entrypoints.
 All functions return structured data; presentation is handled by callers.
 """
 
+import logging
 import os
 import json
+import inspect
 from datetime import datetime
 from pathlib import Path
 from typing import Literal, Optional
+from collections.abc import Iterable
 
 import requests
 from dotenv import load_dotenv
 
+import knowledge_loader
 from linpeas_preprocessor import preprocess_linpeas_output
 from linpeas_parser import parse_linpeas_output  # noqa: F401 - exposed for callers if needed
 from cve_matcher import _match_cves
@@ -22,12 +26,33 @@ from gpt_analysis import format_prompt, _get_client
 from tools.oss_persona.oss_client import quick_answer
 
 
+logger = logging.getLogger(__name__)
 load_dotenv()
 
 
 def _generate_timestamp_filename(prefix: str = "linpeas_parsed") -> str:
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
     return f"{prefix}_{ts}.json"
+
+
+def _normalize_llm_summary(value: Optional[object]) -> Optional[str]:
+    """Normalize LLM outputs to a UI-safe string or None."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    try:
+        if inspect.isgenerator(value) or (isinstance(value, Iterable) and not isinstance(value, (str, bytes))):
+            try:
+                return "".join(str(part) for part in value)
+            except Exception:
+                return "[LLM summary unavailable]"
+    except Exception:
+        return "[LLM summary unavailable]"
+    try:
+        return str(value)
+    except Exception:
+        return "[LLM summary unavailable]"
 
 
 def _check_ollama_available() -> bool:
@@ -150,6 +175,31 @@ def preprocess_only(raw_file_path: str, output_path: Optional[str] = None) -> di
         return {"status": "error", "json_path": None, "parsed_data": None, "error": str(exc)}
 
 
+def lookup_technique(topic: str) -> Optional[str]:
+    """Fetch technique notes from the operator knowledgebase.
+
+    Args:
+        topic: Dotted topic path, e.g. 'htb.pivoting.socks5_rdp_lab'.
+
+    Returns:
+        Note content as a string, or None if not found or on error.
+    """
+    try:
+        note = knowledge_loader.get_note(topic)
+        if note is None:
+            logger.info("Technique '%s' not found in knowledgebase", topic)
+            return None
+        return note.get("content")
+    except FileNotFoundError:
+        logger.warning(
+            "Knowledgebase root or index not found. Set PROX_KB_ROOT to your knowledgebase repo."
+        )
+        return None
+    except Exception as exc:
+        logger.error("Unexpected error loading technique '%s': %s", topic, exc)
+        return None
+
+
 def run_cve_pipeline(json_path: str) -> dict:
     """
     Run CVE matching against a linPEAS JSON file.
@@ -208,6 +258,7 @@ def summarize_findings(
     if backend == "local":
         try:
             summary = quick_answer(prompt, system=None)
+            summary = _normalize_llm_summary(summary)  # ensure UI-safe output
             return {"status": "success", "summary": summary, "backend_used": "local", "error": None}
         except Exception as exc:
             return {"status": "error", "summary": None, "backend_used": "local", "error": str(exc)}
@@ -227,14 +278,17 @@ def summarize_findings(
                 max_tokens=700,
             )
             content = resp.choices[0].message.content
-            return {"status": "success", "summary": content, "backend_used": "cloud", "error": None}
+            summary = _normalize_llm_summary(content)  # ensure UI-safe output
+            return {"status": "success", "summary": summary, "backend_used": "cloud", "error": None}
         except Exception as exc:
             return {"status": "error", "summary": None, "backend_used": "cloud", "error": str(exc)}
 
     return {"status": "error", "summary": None, "backend_used": None, "error": "LLM backend unavailable"}
 
 
-def analyze_linpeas(raw_file_path: str, mode: str = "auto", save_json: bool = False) -> dict:
+def analyze_linpeas(
+    raw_file_path: str, mode: str = "auto", save_json: bool = False, include_knowledge: bool = False
+) -> dict:
     """
     Full linPEAS workflow: preprocess -> CVE match -> optional LLM summary.
 
@@ -242,25 +296,30 @@ def analyze_linpeas(raw_file_path: str, mode: str = "auto", save_json: bool = Fa
         raw_file_path: Path to raw linPEAS text.
         mode: LLM mode ("auto", "local", "cloud", "none").
         save_json: Preserve intermediate JSON if True.
+        include_knowledge: Attach knowledgebase context when True.
 
     Returns:
-        Aggregated result dict with parsed data, CVE findings, LLM summary, and errors.
+        Aggregated result dict with parsed data, CVE findings, LLM summary, knowledge_context, and errors.
     """
     errors = []
     json_path = _generate_timestamp_filename()
     parsed_data = {}
     cve_findings = []
     llm_summary = None
+    knowledge_context = None
 
     try:
         pre = preprocess_only(raw_file_path, json_path)
         if pre["status"] != "success":
+            if include_knowledge:
+                knowledge_context = lookup_technique("htb.pivoting.socks5_rdp_lab")
             return {
                 "status": "error",
                 "json_path": None,
                 "parsed_data": {},
                 "cve_findings": [],
                 "llm_summary": None,
+                "knowledge_context": knowledge_context,
                 "errors": [pre.get("error")],
             }
         parsed_data = pre.get("parsed_data") or {}
@@ -272,11 +331,14 @@ def analyze_linpeas(raw_file_path: str, mode: str = "auto", save_json: bool = Fa
             errors.append(cve_result.get("error"))
 
         if mode != "none":
-            sum_result = summarize_findings(parsed_data=parsed_data, mode=mode)
+            summary_input = {"parsed_data": parsed_data} if parsed_data else {"json_path": json_path}
+            sum_result = summarize_findings(mode=mode, **summary_input)
             if sum_result["status"] == "success":
-                llm_summary = sum_result.get("summary")
+                llm_summary = _normalize_llm_summary(sum_result.get("summary"))  # UI-safe string for TUI rendering
             else:
                 errors.append(sum_result.get("error"))
+        if include_knowledge:
+            knowledge_context = lookup_technique("htb.pivoting.socks5_rdp_lab")
         status = "success" if not errors else "partial"
         return {
             "status": status,
@@ -284,24 +346,31 @@ def analyze_linpeas(raw_file_path: str, mode: str = "auto", save_json: bool = Fa
             "parsed_data": parsed_data,
             "cve_findings": cve_findings,
             "llm_summary": llm_summary,
+            "knowledge_context": knowledge_context,
             "errors": [e for e in errors if e],
         }
     except FileNotFoundError as exc:
+        if include_knowledge:
+            knowledge_context = lookup_technique("htb.pivoting.socks5_rdp_lab")
         return {
             "status": "error",
             "json_path": None,
             "parsed_data": {},
             "cve_findings": [],
             "llm_summary": None,
+            "knowledge_context": knowledge_context,
             "errors": [f"File not found: {exc}"],
         }
     except Exception as exc:
+        if include_knowledge:
+            knowledge_context = lookup_technique("htb.pivoting.socks5_rdp_lab")
         return {
             "status": "error",
             "json_path": None,
             "parsed_data": {},
             "cve_findings": [],
             "llm_summary": None,
+            "knowledge_context": knowledge_context,
             "errors": [f"Unexpected error: {exc}"],
         }
     finally:
