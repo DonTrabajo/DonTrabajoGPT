@@ -100,8 +100,15 @@ def main():
             file_path = _prompt_for_file("📄 Enter path to raw linPEAS .txt for full-stack analysis: ")
             if not file_path:
                 continue
+            include_knowledge_input = input("Include internal knowledgebase in analysis? [y/N]: ").strip().lower()
+            include_knowledge = include_knowledge_input == "y"
             animated_transition()
-            result = orchestrator.analyze_linpeas(file_path, mode="auto", save_json=False)
+            result = orchestrator.analyze_linpeas(
+                file_path,
+                mode="auto",
+                save_json=False,
+                include_knowledge=include_knowledge,  # hook for future Knowledgebase enrichment
+            )
             if result["status"] in {"success", "partial"}:
                 console.print(Panel("[green]✓ Analysis complete[/green]", border_style="green"))
                 parsed = result.get("parsed_data") or {}
@@ -115,8 +122,19 @@ def main():
                     console.print("[bold yellow]CVE Findings:[/bold yellow]")
                     for hit in result["cve_findings"]:
                         console.print(f"- {hit['name']} {hit['version']} -> {hit['cve']}: {hit['description']}")
-                if result.get("llm_summary"):
-                    console.print(Panel(result["llm_summary"], title="🧠 LLM Summary", border_style="blue"))
+                llm_summary = result.get("llm_summary")
+                if not isinstance(llm_summary, str) or not llm_summary.strip():
+                    llm_summary = "[No LLM summary returned]"
+                console.print(Panel(llm_summary, title="🧠 LLM Summary", border_style="blue"))
+                knowledge_context = result.get("knowledge_context")
+                if isinstance(knowledge_context, str) and knowledge_context.strip():
+                    console.print(
+                        Panel(
+                            knowledge_context,
+                            title=" Operator Knowledge",
+                            border_style="green",
+                        )
+                    )
                 if result.get("errors"):
                     console.print(Panel(f"[yellow]Warnings: {result['errors']}[/yellow]", border_style="yellow"))
             else:
